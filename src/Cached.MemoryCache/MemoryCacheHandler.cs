@@ -1,7 +1,7 @@
 ﻿namespace Cached.MemoryCache
 {
+    using AsyncKeyedLock;
     using Caching;
-    using Locking;
     using Microsoft.Extensions.Caching.Memory;
 
     /// <summary>
@@ -40,7 +40,11 @@
         /// <returns></returns>
         public static ICache<IMemory> New(IMemoryCache memoryCache, MemoryCacheEntryOptions options = null)
         {
-            return new CacheHandler<IMemory>(new MemoryCacheProvider(memoryCache, options), new KeyBasedLock());
+            return new CacheHandler<IMemory>(new MemoryCacheProvider(memoryCache, options), new AsyncKeyedLocker<string>(o =>
+            {
+                o.PoolSize = 20;
+                o.PoolInitialFill = 1;
+            }));
         }
     }
 }

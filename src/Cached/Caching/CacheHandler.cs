@@ -1,16 +1,16 @@
 ﻿namespace Cached.Caching
 {
+    using AsyncKeyedLock;
     using System;
     using System.Threading.Tasks;
-    using Locking;
 
     internal sealed class CacheHandler<TProvider> : ICache<TProvider> where TProvider : ICacheProvider
     {
-        private readonly ILock _cacheLock;
+        private readonly AsyncKeyedLocker<string> _cacheLock;
 
         public CacheHandler(
             TProvider cacheProvider,
-            ILock cacheLock)
+            AsyncKeyedLocker<string> cacheLock)
         {
             Provider = cacheProvider != null ? cacheProvider : throw new ArgumentNullException(nameof(cacheProvider));
             _cacheLock = cacheLock ?? throw new ArgumentNullException(nameof(cacheLock));

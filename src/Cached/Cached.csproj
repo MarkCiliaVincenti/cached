@@ -27,8 +27,8 @@
 	</PropertyGroup>
 
 	<Target Name="LoadReleaseNotesFromFile" BeforeTargets="GenerateNuspec">
-		<ReadLinesFromFile File="..\..\CHANGELOG.md" >
-			<Output TaskParameter="Lines" ItemName="ReleaseNoteLines"/>
+		<ReadLinesFromFile File="..\..\CHANGELOG.md">
+			<Output TaskParameter="Lines" ItemName="ReleaseNoteLines" />
 		</ReadLinesFromFile>
 		<PropertyGroup>
 			<PackageReleaseNotes>@(ReleaseNoteLines, '%0a')</PackageReleaseNotes>
@@ -72,5 +72,9 @@
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
 			<_Parameter1>DynamicProxyGenAssembly2</_Parameter1>
 		</AssemblyAttribute>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="AsyncKeyedLock" Version="6.0.5" />
 	</ItemGroup>
 </Project>

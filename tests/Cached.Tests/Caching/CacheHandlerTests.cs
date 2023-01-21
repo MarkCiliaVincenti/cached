@@ -1,10 +1,10 @@
 ﻿namespace Cached.Tests.Caching
 {
+    using AsyncKeyedLock;
+    using Cached.Caching;
+    using Moq;
     using System;
     using System.Threading.Tasks;
-    using Cached.Caching;
-    using Cached.Locking;
-    using Moq;
     using Xunit;
 
     public class CacheHandlerTests
@@ -28,7 +28,7 @@
                     Assert.Throws<ArgumentNullException>(() =>
                         new CacheHandler<ICacheProvider>(
                             null,
-                            new Mock<ILock>().Object));
+                            new Mock<AsyncKeyedLocker<string>>().Object));
                 }
             }
         }
@@ -45,7 +45,7 @@
                     // Arrange
                     var handler = new CacheHandler<ICacheProvider>(
                         new Mock<ICacheProvider>().Object,
-                        new Mock<ILock>().Object);
+                        new Mock<AsyncKeyedLocker<string>>().Object);
 
                     // Act, Assert
                     await Assert.ThrowsAsync<ArgumentNullException>(
@@ -57,7 +57,7 @@
             public void Disposes_Provider_When_Dispose_Is_Called()
             {
                 // Arrange
-                var lockMock = new Mock<ILock>();
+                var lockMock = new Mock<AsyncKeyedLocker<string>>();
                 var cacheMock = new Mock<ICacheProvider>();
                 var handler = new CacheHandler<ICacheProvider>(cacheMock.Object, lockMock.Object);
 
@@ -86,7 +86,7 @@
                         return Task.FromResult(CachedValueResult<string>.Miss);
                     });
 
-                var lockMock = new Mock<ILock>();
+                var lockMock = new Mock<AsyncKeyedLocker<string>>();
                 var handler = new CacheHandler<ICacheProvider>(providerMock.Object, lockMock.Object);
 
                 // Act
@@ -96,8 +96,6 @@
 
                 // Assert
                 Assert.Equal("cached_value", result);
-                lockMock.Verify(l => l.LockAsync(It.IsAny<object>()), Times.Once);
-                lockMock.Verify(l => l.LockAsync("key"), Times.Once);
                 providerMock.Verify(m => m.Set(It.IsAny<string>(), It.IsAny<object>()), Times.Never);
                 providerMock.Verify(m => m.TryGet<It.IsAnyType>(It.IsAny<string>()), Times.Exactly(2));
                 providerMock.Verify(m => m.TryGet<string>("key"), Times.Exactly(2));
@@ -110,7 +108,7 @@
                 var providerMock = new Mock<ICacheProvider>();
                 providerMock.Setup(m => m.TryGet<string>("key"))
                     .Returns(Task.FromResult(CachedValueResult<string>.Miss));
-                var lockMock = new Mock<ILock>();
+                var lockMock = new Mock<AsyncKeyedLocker<string>>();
                 var handler = new CacheHandler<ICacheProvider>(providerMock.Object, lockMock.Object);
 
                 // Act
@@ -121,8 +119,6 @@
                 // Assert
                 Assert.Equal("key_fetched", result);
                 Assert.Equal(handler.Provider, providerMock.Object);
-                lockMock.Verify(l => l.LockAsync(It.IsAny<object>()), Times.Once);
-                lockMock.Verify(l => l.LockAsync("key"), Times.Once);
                 providerMock.Verify(m => m.TryGet<It.IsAnyType>(It.IsAny<string>()), Times.Exactly(2));
                 providerMock.Verify(m => m.TryGet<string>("key"), Times.Exactly(2));
                 providerMock.Verify(m => m.Set(It.IsAny<string>(), It.IsAny<object>()), Times.Once);
@@ -136,7 +132,7 @@
                 var providerMock = new Mock<ICacheProvider>();
                 providerMock.Setup(m => m.TryGet<string>("key"))
                     .Returns(Task.FromResult(CachedValueResult<string>.Hit("cached_value")));
-                var lockMock = new Mock<ILock>();
+                var lockMock = new Mock<AsyncKeyedLocker<string>>();
                 var handler = new CacheHandler<ICacheProvider>(providerMock.Object, lockMock.Object);
 
                 // Act
@@ -146,7 +142,6 @@
 
                 // Assert
                 Assert.Equal("cached_value", result);
-                lockMock.Verify(l => l.LockAsync(It.IsAny<object>()), Times.Never);
                 providerMock.Verify(m => m.TryGet<It.IsAnyType>(It.IsAny<string>()), Times.Once);
                 providerMock.Verify(m => m.TryGet<string>("key"), Times.Once);
                 providerMock.Verify(m => m.Set(It.IsAny<string>(), It.IsAny<object>()), Times.Never);

@@ -27,9 +27,9 @@
             ServiceBuilder.GetBuild()(services);
 
             // Assert
-            Assert.Equal(8, services.Count); // Includes MemoryCache and all options instances.
+            Assert.Equal(9, services.Count); // Includes MemoryCache and all options instances.
             Assert.Equal(typeof(ICache<IMemory>), services[6].ServiceType); // ICache service added before ICached
-            Assert.Equal(typeof(ICached<string, string>), services[7].ServiceType); // ICached service added last.
+            Assert.Equal(typeof(ICached<string, string>), services[8].ServiceType); // ICached service added last.
         }
     }
 }
