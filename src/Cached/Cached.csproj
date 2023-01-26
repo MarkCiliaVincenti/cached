@@ -27,8 +27,8 @@
 	</PropertyGroup>
 
 	<Target Name="LoadReleaseNotesFromFile" BeforeTargets="GenerateNuspec">
-		<ReadLinesFromFile File="..\..\CHANGELOG.md">
-			<Output TaskParameter="Lines" ItemName="ReleaseNoteLines" />
+		<ReadLinesFromFile File="..\..\CHANGELOG.md" >
+			<Output TaskParameter="Lines" ItemName="ReleaseNoteLines"/>
 		</ReadLinesFromFile>
 		<PropertyGroup>
 			<PackageReleaseNotes>@(ReleaseNoteLines, '%0a')</PackageReleaseNotes>
@@ -75,6 +75,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="AsyncKeyedLock" Version="6.0.5" />
+	  <PackageReference Include="AsyncKeyedLock" Version="6.1.0" />
 	</ItemGroup>
 </Project>
